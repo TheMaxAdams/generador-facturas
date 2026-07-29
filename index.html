@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Facturas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <h1>Generador de Facturas</h1>
+    <button id="btn-exportar-pdf" class="btn btn-primary">Descargar PDF</button>
+  </header>
+
+  <main class="app-container">
+
+    <!-- ================= FORMULARIO ================= -->
+    <section class="panel formulario">
+      <h2>Datos de la factura</h2>
+
+      <div class="grid-2">
+        <div class="campo">
+          <label for="numero-factura">Número de factura</label>
+          <input type="text" id="numero-factura" value="0001">
+        </div>
+        <div class="campo">
+          <label for="fecha-factura">Fecha</label>
+          <input type="date" id="fecha-factura">
+        </div>
+      </div>
+
+      <fieldset class="bloque">
+        <legend>Datos del emisor (tu negocio)</legend>
+        <div class="campo">
+          <label for="emisor-logo">Logo del negocio</label>
+          <input type="file" id="emisor-logo" accept="image/*">
+          <div id="logo-preview-mini-wrapper" class="logo-preview-mini-wrapper" style="display:none;">
+            <img id="logo-preview-mini" class="logo-preview-mini" alt="Logo">
+            <button type="button" id="btn-quitar-logo" class="btn-eliminar-linea">✕ Quitar logo</button>
+          </div>
+        </div>
+        <div class="campo">
+          <label for="emisor-nombre">Nombre del negocio</label>
+          <input type="text" id="emisor-nombre" placeholder="Mi Empresa S.L.">
+        </div>
+        <div class="campo">
+          <label for="emisor-direccion">Dirección</label>
+          <input type="text" id="emisor-direccion" placeholder="Calle Falsa 123">
+        </div>
+        <div class="campo">
+          <label for="emisor-email">Email</label>
+          <input type="email" id="emisor-email" placeholder="contacto@miempresa.com">
+        </div>
+      </fieldset>
+
+      <fieldset class="bloque">
+        <legend>Datos del cliente</legend>
+
+        <div class="campo buscador-wrapper">
+          <label for="buscar-cliente">Buscar cliente guardado</label>
+          <input type="text" id="buscar-cliente" placeholder="Escribe un nombre..." autocomplete="off">
+          <div id="sugerencias-clientes" class="sugerencias"></div>
+        </div>
+
+        <div class="campo">
+          <label for="cliente-nombre">Nombre del cliente</label>
+          <input type="text" id="cliente-nombre" placeholder="Nombre del cliente">
+        </div>
+        <div class="campo">
+          <label for="cliente-direccion">Dirección</label>
+          <input type="text" id="cliente-direccion" placeholder="Dirección del cliente">
+        </div>
+        <div class="campo">
+          <label for="cliente-email">Email</label>
+          <input type="email" id="cliente-email" placeholder="cliente@email.com">
+        </div>
+
+        <button type="button" id="btn-guardar-cliente" class="btn btn-secundario">
+          💾 Guardar este cliente
+        </button>
+      </fieldset>
+
+      <fieldset class="bloque">
+        <legend>Productos / Servicios</legend>
+
+        <table class="tabla-lineas" id="tabla-lineas">
+          <thead>
+            <tr>
+              <th>Descripción</th>
+              <th>Cantidad</th>
+              <th>Precio unitario</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-lineas">
+            <!-- Las filas se generan dinámicamente con JS -->
+          </tbody>
+        </table>
+
+        <button id="btn-agregar-linea" class="btn btn-secundario" type="button">
+          + Agregar línea
+        </button>
+      </fieldset>
+
+      <div class="campo">
+        <label for="impuesto">Impuesto (%)</label>
+        <input type="number" id="impuesto" value="16" min="0" max="100">
+      </div>
+
+      <div class="campo">
+        <label for="notas">Notas / Condiciones de pago</label>
+        <textarea id="notas" rows="3" placeholder="Ej: Pago a 30 días..."></textarea>
+      </div>
+    </section>
+
+    <!-- ================= VISTA PREVIA ================= -->
+    <section class="panel preview-wrapper">
+      <h2>Vista previa</h2>
+      <div id="factura-preview" class="factura">
+
+        <div class="factura-header">
+          <div class="factura-emisor-bloque">
+            <img id="preview-logo" class="preview-logo" style="display:none;" alt="Logo del negocio">
+            <h2 id="preview-emisor-nombre">Nombre del negocio</h2>
+            <p id="preview-emisor-direccion"></p>
+            <p id="preview-emisor-email"></p>
+          </div>
+          <div class="factura-meta">
+            <p><strong>Factura N°:</strong> <span id="preview-numero">0001</span></p>
+            <p><strong>Fecha:</strong> <span id="preview-fecha">--</span></p>
+          </div>
+        </div>
+
+        <div class="factura-cliente">
+          <h3>Facturar a:</h3>
+          <p id="preview-cliente-nombre">Nombre del cliente</p>
+          <p id="preview-cliente-direccion"></p>
+          <p id="preview-cliente-email"></p>
+        </div>
+
+        <table class="factura-tabla">
+          <thead>
+            <tr>
+              <th>Descripción</th>
+              <th>Cant.</th>
+              <th>Precio</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="preview-tbody">
+            <!-- Filas generadas por JS -->
+          </tbody>
+        </table>
+
+        <div class="factura-totales">
+          <p>Subtotal: <span id="preview-subtotal">$0.00</span></p>
+          <p>Impuesto (<span id="preview-porcentaje-impuesto">0</span>%): <span id="preview-impuesto">$0.00</span></p>
+          <p class="total-final">Total: <span id="preview-total">$0.00</span></p>
+        </div>
+
+        <p class="factura-notas" id="preview-notas"></p>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
